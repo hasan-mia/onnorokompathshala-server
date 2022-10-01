@@ -8,11 +8,13 @@ require('dotenv').config();
 // Middleware
 app.use(cors());
 app.use(express.json());
-// Port
-const port = process.env.PORT || 5000
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.tsmuzfz.mongodb.net/?retryWrites=true&w=majority`;
+// Port
+const port = process.env.PORT || 5001
+
+const uri = `mongodb+srv://onnorokompathshala:hasanrafi69@cluster0.tsmuzfz.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
 //==============================//
 //			Tokeyn Verify		//
 //==============================//
@@ -42,10 +44,6 @@ async function run() {
 		console.log('DB Connected');
 		const userCollection = client.db("onnorokompathshala").collection("users");
 		const videoCollection = client.db("onnorokompathshala").collection("videos");
-		const likeCollection = client.db("onnorokompathshala").collection("likes");
-		const dislikeCollection = client.db("onnorokompathshala").collection("dislikes");
-		// const dislikeCollection = client.db("onnorokompathshala").collection("videos");
-
 
 		//==============================//
 		//			User Controller		//
@@ -135,12 +133,17 @@ async function run() {
 			res.send(video);
 		})
 
-		// ====Update Videos======
-		app.put('/video/:id', async (req, res) => {
+		// ====Update Likes======
+		app.put('/video/:id/like', async (req, res) => {
 			const id = req.params.id;
 			const video = req.body;
 			const filter = { _id: ObjectId(id) };
 			const options = { upsert: true };
+			// 	const video = await Video.findById(req.params.id);
+			// if (!video.likes.includes(req.body.videoId)) {
+			//     await video.updateOne({ $push: { likes: req.body.videoId } });
+			//     res.status(200).json("The video has been liked");
+
 			const updateVideo = {
 				$set: {
 					title: video.title,
@@ -158,6 +161,24 @@ async function run() {
 			res.send(result);
 		});
 
+		// ====Update Videos======
+		app.put('/video/:id', async (req, res) => {
+			const id = req.params.id;
+			const video = req.body;
+			const filter = { _id: ObjectId(id) };
+			const options = { upsert: true };
+			const updateVideo = {
+				$set: {
+					title: video.title,
+					description: video.description,
+					videoId: video.videoId,
+					apiKey: video.apiKey,
+				}
+			};
+			const result = await videoCollection.updateOne(filter, updateVideo, options);
+			res.send(result);
+		});
+
 		// ====Delete Videos======
 		app.delete('/video/:id', async (req, res) => {
 			const id = req.params.id;
@@ -169,8 +190,6 @@ async function run() {
 
 	} catch (error) {
 		res.send(error);
-	} finally {
-
 	}
 }
 run().catch(console.dir)
