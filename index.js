@@ -134,30 +134,22 @@ async function run() {
 		})
 
 		// ====Update Likes======
-		app.put('/video/:id/like', async (req, res) => {
-			const id = req.params.id;
+		app.put('/video/:videoId/like', async (req, res) => {
 			const video = req.body;
-			const filter = { _id: ObjectId(id) };
-			const options = { upsert: true };
-			// 	const video = await Video.findById(req.params.id);
-			// if (!video.likes.includes(req.body.videoId)) {
-			//     await video.updateOne({ $push: { likes: req.body.videoId } });
-			//     res.status(200).json("The video has been liked");
+			const result = await videoCollection.updateOne(
+				{ videoId: video.videoId },
+				{ $push: { likes: video.likes } }
+			 )
+			res.send(result);
+		});
 
-			const updateVideo = {
-				$set: {
-					title: video.title,
-					description: video.description,
-					videoId: video.videoId,
-					videoKey: video.videoKey,
-					videoLike: video.videoLike,
-					videoDisliike: video.videoDisliike,
-					email: video.email,
-					author: video.name,
-					postar: video.postar
-				}
-			};
-			const result = await videoCollection.updateOne(filter, updateVideo, options);
+		// ====Update Dislikes======
+		app.put('/video/:videoId/dislike', async (req, res) => {
+			const video = req.body;
+			const result = await videoCollection.updateOne(
+				{ videoId: video.videoId },
+				{ $push: { dislikes: video.dislikes } }
+			 )
 			res.send(result);
 		});
 
