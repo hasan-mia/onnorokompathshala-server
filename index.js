@@ -141,6 +141,7 @@ async function run() {
 				{ $push: { likes: video.likes } }
 			 )
 			res.send(result);
+			// console.log(video)
 		});
 
 		// ====Update Dislikes======
@@ -151,6 +152,7 @@ async function run() {
 				{ $push: { dislikes: video.dislikes } }
 			 )
 			res.send(result);
+			// console.log(video)
 		});
 
 		// ====Update Videos======
